@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8" />
+<title>商品検索 | SUMOKAN</title>
+<link rel="stylesheet" th:href="@{/css/index.css}" href="/css/index.css" />
+<link rel="stylesheet" th:href="@{/css/common.css}" href="/css/common.css" />
+ <script src="http://code.jquery.com/jquery-3.4.1.min.js"></script>
+ 
+</head>
+
+<body>
+<header th:insert="fragments/page_header.html :: pageHeader"></header>
+
+	
+	<main>
+	    <div class="container">
+		<form name="searchItemForm" action="/hope/searchItem">
+		<span class="category">カテゴリ
+	        <select name="category" id="category">
+	      	
+	      	<option value="0" ></option>
+	        <option
+	        th:each="category:${categorys}"
+	        th:selected="${selected == category.id}"
+	        th:value="${category.id}"
+	        th:text="${category.categoryName}">
+	        </option>
+	        </select>
+	     </span>
+	     
+	    <span class="goodsSearch">商品名（部分一致）
+	      <input type="text" name="goodsSearch" size="30" th:value="${keywords}" />	
+	      <button type="submit" class="search">検索</button>
+	    </span>
+        </form>
+        
+        <div class="noData" th:if="${products == null || products.size() == 0}">
+        	<p class="info">検索結果はありません。</p>
+        </div>
+        
+        <table class="top" border="1" th:if="${products != null && products.size() > 0}">
+
+            <tr>
+                <th>画像</th><th>商品名</th><th>価格(円)</th><th>個数</th><th>カート</th>
+            </tr>
+            <tr th:each="item: ${products}">
+	      		<td class="image" width="20%">
+ 	       		 <a href="/hope/product/" th:href="@{/hope/product/{id}(id=${item.id})}"><img class="itemImage" th:src="@{{imagePath} (imagePath=${item.imageFullPath}) }" /></a>
+	      		</td>
+	      		<td class="product"><a href="/hope/product/" th:href="@{/hope/product/{id}(id=${item.id})}"><label  th:text="${item.productName}" ></label></a></td>
+	      		<td class="number" th:text="${item.price}" />
+	      		<td class="componentTd" width="10%">
+	      		<input type="number" id="productCount" class="count number" name="productCount" value="0"  min="0" step="1" />
+	      			<input type="hidden" id="productId" name="productId" th:value="${item.id}"/>
+	      		</td>
+                <td class="componentTd"><button class="cartBtn">追加</button></td>
+            </tr>
+            
+        </table>
+        </div>
+    </main>
+    
+    <script>
+ $(() => {
+	 $('.cartBtn').on('click',addCart);
+ });
+ 
+ let addCart = (event) => {
+	 let tr = $(event.target).parent().parent();
+	 let productId = $(tr).find('#productId').val();
+	 let productCount = $(tr).find('#productCount').val();
+	 
+	 if (productCount == 0){
+		 alert("個数が０です。");
+		 return;
+	 }
+	 location.replace(`/hope/cart/add?productId=${productId}&productCount=${productCount}`);
+ }
+ </script>
+
+</body>
+</html>
